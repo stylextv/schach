@@ -10,8 +10,8 @@
   <a href="https://GitHub.com/StylexTV/Schach/stargazers/">
     <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Schach.svg?color=ffdd00"/>
   </a>
-  <a href="https://www.codacy.com/manual/noluck942/GSigns?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/GSigns&amp;utm_campaign=Badge_Grade">
-    <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/a33dbb19ff17460d896a7864fececab6"/>
+  <a href="https://www.codacy.com/gh/StylexTV/Schach/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/Schach&amp;utm_campaign=Badge_Grade">
+    <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/87d05813cf254b988460cccc67134bec"/>
   </a>
   <a>
     <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Schach.svg"/>

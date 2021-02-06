@@ -7,23 +7,20 @@
 <h4 align="center">♟️ Source code of my Chess engine, made with love in Java.</h4>
 
 <p align="center">
-  <a href="https://GitHub.com/StylexTV/Tune/stargazers/">
-    <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Tune.svg?color=ffdd00"/>
+  <a href="https://GitHub.com/StylexTV/Schach/stargazers/">
+    <img alt="stars" src="https://img.shields.io/github/stars/StylexTV/Schach.svg?color=ffdd00"/>
   </a>
   <a href="https://www.codacy.com/manual/noluck942/GSigns?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StylexTV/GSigns&amp;utm_campaign=Badge_Grade">
     <img alt="Codacy Badge" src="https://app.codacy.com/project/badge/Grade/a33dbb19ff17460d896a7864fececab6"/>
   </a>
-  <a href="https://stylextv.gitbook.io/gsigns" alt="Docs (gitbook)">
-    <img src="https://img.shields.io/badge/docs-gitbook-brightgreen"/>
+  <a>
+    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Schach.svg"/>
   </a>
   <a>
-    <img alt="Code size" src="https://img.shields.io/github/languages/code-size/StylexTV/Tune.svg"/>
+    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/StylexTV/Schach.svg"/>
   </a>
   <a>
-    <img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/StylexTV/Tune.svg"/>
-  </a>
-  <a>
-    <img alt="Lines of Code" src="https://tokei.rs/b1/github/StylexTV/Tune?category=code"/>
+    <img alt="Lines of Code" src="https://tokei.rs/b1/github/StylexTV/Schach?category=code"/>
   </a>
 </p>
 

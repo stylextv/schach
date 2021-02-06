@@ -33,7 +33,7 @@ Here you can see the current structure of the project.
 
 ```bash
 ├─ 📂 executables/    # ✨ Executables (download and run)
-├─ 📂 screenshots/    # ✨ Showcase-Screenshots
+├─ 📂 screenshots/    # ✨ Showcase Screenshots
 ├─ 📂 src/            # 🌟 Source Files
 │  ├─ 📂 assets/          # ✒️ Program Assets
 │  │  └─ 📂 fonts/        # 📦 Fonts

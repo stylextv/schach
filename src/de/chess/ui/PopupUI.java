@@ -54,9 +54,9 @@ public class PopupUI {
 		
 		BUFFER_GRAPHICS.drawString(title, off + width/2 - BUFFER_GRAPHICS.getFontMetrics().stringWidth(title)/2, off + height/2 - 23);
 		
-		int j = Constants.BRIGTNESS_BLACK;
+		int j = Constants.BRIGHTNESS_BLACK;
 		
-		BUFFER_GRAPHICS.setColor(new Color(j, j, j, 255 - (int) (18 * buttonState)));
+		BUFFER_GRAPHICS.setColor(new Color(j, j, j, 255 - (int) (32 * buttonState)));
 		BUFFER_GRAPHICS.fillRoundRect(off + width/2 - BUTTON_WIDTH/2, off + height/2 + 10, BUTTON_WIDTH, BUTTON_HEIGHT, BUTTON_HEIGHT, BUTTON_HEIGHT);
 		
 		BUFFER_GRAPHICS.setColor(Constants.COLOR_WHITE);
@@ -83,7 +83,7 @@ public class PopupUI {
 	}
 	
 	public static void updatePopup(Graphics2D graphics) {
-		boolean show = BoardUI.getWinner() != Winner.NONE && BoardUI.getLastAIMove() == null;
+		boolean show = BoardUI.getWinner() != Winner.NONE && BoardUI.getLastAIMoveState() == 1;
 		
 		state = MathUtil.lerp(state, show ? 1 : 0, 0.2f);
 		

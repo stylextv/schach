@@ -8,10 +8,12 @@ import java.util.ArrayList;
 
 import de.chess.game.Board;
 import de.chess.game.Move;
+import de.chess.game.MoveFlag;
 import de.chess.game.MoveGenerator;
+import de.chess.game.MoveList;
 import de.chess.game.PieceCode;
 import de.chess.game.Winner;
-import de.chess.util.ImageUtil;
+import de.chess.main.Constants;
 import de.chess.util.MathUtil;
 
 public class BoardUI {
@@ -36,10 +38,9 @@ public class BoardUI {
 		if(lastAIMove != null) {
 			
 			if(lastAIMoveState < 1) {
-				
 				lastAIMoveState += 1/32f;
 			} else {
-				lastAIMove = null;
+				lastAIMoveState = 1;
 			}
 		}
 		
@@ -71,8 +72,11 @@ public class BoardUI {
 						int p = board.getPiece(index);
 						
 						if(p != -1 && PieceCode.getColorFromSpriteCode(p) == board.getSide()) {
-							MoveGenerator.generateAllMoves(board);
-							ArrayList<Move> moves = MoveGenerator.getMovesForIndex(index, board, true);
+							MoveList list = new MoveList();
+							
+							MoveGenerator.generateAllMoves(board, list);
+							
+							ArrayList<Move> moves = MoveGenerator.getMovesForIndex(index, board, list, true);
 							
 							if(moves.size() != 0) {
 								fillHand(p, boardX, boardY, index, mx, my, moves);
@@ -91,6 +95,8 @@ public class BoardUI {
 						clearHand();
 						
 						if(m != null) {
+							clearLastAIMove();
+							
 							board.makeMove(m);
 							
 							checkForWinner(board);
@@ -117,10 +123,22 @@ public class BoardUI {
 	}
 	
 	public static void drawBoard(Graphics2D graphics, Board board) {
-		int offsetX = (UIManager.getWidth() - ImageUtil.BOARD.getWidth()) / 2;
-		int offsetY = (UIManager.getHeight() - ImageUtil.BOARD.getHeight()) / 2;
+		int offsetX = (UIManager.getWidth() - 512) / 2;
+		int offsetY = (UIManager.getHeight() - 512) / 2;
 		
-		graphics.drawImage(ImageUtil.BOARD, offsetX, offsetY, null);
+		if(lastAIMove != null) {
+			int fromX = offsetX + lastAIMove.getFrom() % 8 * 64 + 32;
+			int fromY = offsetY + lastAIMove.getFrom() / 8 * 64 + 32;
+			int toX = offsetX + lastAIMove.getTo() % 8 * 64 + 32;
+			int toY = offsetY + lastAIMove.getTo() / 8 * 64 + 32;
+			
+			double d = MathUtil.sigmoid(lastAIMoveState);
+			
+			graphics.setColor(Constants.COLOR_BLUE);
+			graphics.setStroke(Constants.LINE_STROKE);
+			
+			graphics.drawLine(fromX, fromY, (int) (fromX + (toX - fromX) * d), (int) (fromY + (toY - fromY) * d));
+		}
 		
 		for(int x=0; x<8; x++) {
 			for(int y=0; y<8; y++) {
@@ -157,14 +175,14 @@ public class BoardUI {
 		graphics.drawImage(sprite, trans, null);
 	}
 	
-	private static void drawPiece(Graphics2D graphics, int p, int x, int y, int offsetX, int offsetY) {
+	private static void drawPiece(Graphics2D graphics, int p, int x, int y, int offX, int offY) {
 		int pos1X = x;
 		int pos1Y = y;
 		
 		int pos2X = -1;
 		int pos2Y = -1;
 		
-		if(lastAIMove != null) {
+		if(lastAIMove != null && lastAIMoveState != 1) {
 			int index = y*8 + x;
 			
 			if(lastAIMove.getTo() == index) {
@@ -174,11 +192,18 @@ public class BoardUI {
 				pos2X = x;
 				pos2Y = y;
 				
+			} else if(y == lastAIMove.getTo() / 8 && ((lastAIMove.getFlag() == MoveFlag.CASTLING_QUEEN_SIDE && x == 3) || (lastAIMove.getFlag() == MoveFlag.CASTLING_KING_SIDE && x == 5))) {
+				
+				int fromX = 0;
+				
+				if(lastAIMove.getFlag() == MoveFlag.CASTLING_KING_SIDE) fromX = 7;
+				
+				pos1X = fromX;
+				pos1Y = lastAIMove.getFrom() / 8;
+				pos2X = x;
+				pos2Y = y;
 			}
 		}
-		
-		int offX = 32 + offsetX;
-		int offY = 32 + offsetY;
 		
 		pos1X = offX + pos1X * 64;
 		pos1Y = offY + pos1Y * 64;
@@ -206,6 +231,10 @@ public class BoardUI {
 		mouseClick = p;
 	}
 	
+	public static void clearLastAIMove() {
+		lastAIMove = null;
+	}
+	
 	private static void checkForWinner(Board b) {
 		winner = b.findWinner();
 		
@@ -222,8 +251,8 @@ public class BoardUI {
 		winner = w;
 	}
 	
-	public static Move getLastAIMove() {
-		return lastAIMove;
+	public static double getLastAIMoveState() {
+		return lastAIMoveState;
 	}
 	
 	public static int getHand() {

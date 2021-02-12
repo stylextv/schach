@@ -6,6 +6,8 @@ public class MoveList {
 	
 	private int count;
 	
+	private int picked;
+	
 	public MoveList() {
 		moves = new Move[BoardConstants.MAX_POSSIBLE_MOVES];
 	}
@@ -37,6 +39,30 @@ public class MoveList {
 	
 	public void setMove(Move move, int i) {
 		moves[i] = move;
+	}
+	
+	public boolean hasMovesLeft() {
+		return picked < count;
+	}
+	
+	public Move next() {
+		picked++;
+		
+		Move best = null;
+		
+		for(int i=0; i<count; i++) {
+			Move m = moves[i];
+			
+			if(m.getScore() != Integer.MIN_VALUE) {
+				if(best == null || m.getScore() > best.getScore()) {
+					best = m;
+				}
+			}
+		}
+		
+		best.setScore(Integer.MIN_VALUE);
+		
+		return best;
 	}
 	
 }

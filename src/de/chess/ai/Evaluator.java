@@ -120,7 +120,7 @@ public class Evaluator {
 			for(int j=0; j<64; j++) {
 				int m = table[j];
 				
-				table[j] = Math.round(base + base * m / 100f);
+				table[j] = Math.round(base + base * m / 300f);
 			}
 		}
 	}
@@ -151,6 +151,10 @@ public class Evaluator {
 		
 		if(b.getSide() == PieceCode.WHITE) return score;
 		return -score;
+	}
+	
+	public static int getPieceValue(int type) {
+		return VALUES[type];
 	}
 	
 }

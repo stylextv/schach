@@ -73,7 +73,7 @@ public class Window {
 	}
 	
 	public void drawSync() {
-		renderer.paintImmediately(0, 0, renderer.getWidth(), renderer.getHeight());
+		frame.repaint();
 	}
 	
 	public void centerOnScreen() {

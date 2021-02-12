@@ -8,11 +8,9 @@ import javax.imageio.ImageIO;
 
 public class ImageUtil {
 	
-	public static ArrayList<BufferedImage> ICONS = new ArrayList<BufferedImage>();
+	public static final ArrayList<BufferedImage> ICONS = new ArrayList<BufferedImage>();
 	
 	public static BufferedImage BACKGROUND;
-	
-	public static BufferedImage BOARD;
 	
 	public static BufferedImage POPUP_SHADOW;
 	
@@ -32,7 +30,6 @@ public class ImageUtil {
 	
 	public static void load() {
 		try {
-			
 			ICONS.add(loadImage("icons/icon16.png"));
 			ICONS.add(loadImage("icons/icon24.png"));
 			ICONS.add(loadImage("icons/icon32.png"));
@@ -41,8 +38,6 @@ public class ImageUtil {
 			ICONS.add(loadImage("icons/icon256.png"));
 			
 			BACKGROUND = loadImage("background.png");
-			
-			BOARD = loadImage("board.png");
 			
 			POPUP_SHADOW = loadImage("popup_shadow.png");
 			
@@ -62,6 +57,7 @@ public class ImageUtil {
 			
 		} catch (Exception ex) {
 			ex.printStackTrace();
+			
 			System.exit(1);
 		}
 	}

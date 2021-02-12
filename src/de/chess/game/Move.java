@@ -10,11 +10,15 @@ public class Move {
     
     private int flag;
     
+    private int score;
+    
 	public Move(int from, int to, int captured, int promoted, int flag) {
     	this.from = from;
     	this.to = to;
+    	
     	this.captured = captured;
     	this.promoted = promoted;
+    	
     	this.flag = flag;
 	}
     
@@ -36,6 +40,14 @@ public class Move {
 	
 	public int getFlag() {
 		return flag;
+	}
+	
+	public int getScore() {
+		return score;
+	}
+	
+	public void setScore(int score) {
+		this.score = score;
 	}
 	
 	@Override

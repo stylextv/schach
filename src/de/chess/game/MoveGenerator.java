@@ -18,11 +18,7 @@ public class MoveGenerator {
 			63, 7
 	};
 	
-	private static final MoveList list = new MoveList();
-	
-	public static void generateAllMoves(Board b) {
-		list.setCount(0);
-		
+	public static void generateAllMoves(Board b, MoveList list) {
 		int side = b.getSide();
 		int facing = 1;
 		int opponentSide = (side + 1) % 2;
@@ -33,15 +29,15 @@ public class MoveGenerator {
 		long occupiedSquares = b.getBitBoard(side).orReturn(b.getBitBoard(opponentSide));
 		long emptySquares = BitOperations.inverse(occupiedSquares);
 		
-		addPawnMoves(b, side, opponentSide, facing, possibleSquares, emptySquares);
-		addKnightMoves(b, side, possibleSquares);
-		addKingMoves(b, side, possibleSquares, emptySquares);
+		addPawnMoves(b, list, side, opponentSide, facing, possibleSquares, emptySquares);
+		addKnightMoves(b, list, side, possibleSquares);
+		addKingMoves(b, list, side, possibleSquares, emptySquares);
 		
-		addSliderMoves(b, side, possibleSquares, occupiedSquares, PieceCode.BISHOP, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
-		addSliderMoves(b, side, possibleSquares, occupiedSquares, PieceCode.ROOK, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
+		addSliderMoves(b, list, side, possibleSquares, occupiedSquares, PieceCode.BISHOP, LookupTable.RELEVANT_BISHOP_MOVES, LookupTable.BISHOP_MAGIC_VALUES, LookupTable.BISHOP_MAGIC_INDEX_BITS, LookupTable.BISHOP_MOVES);
+		addSliderMoves(b, list, side, possibleSquares, occupiedSquares, PieceCode.ROOK, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
 	}
 	
-	private static void addPawnMoves(Board b, int side, int opponentSide, int facing, long possibleSquares, long emptySquares) {
+	private static void addPawnMoves(Board b, MoveList list, int side, int opponentSide, int facing, long possibleSquares, long emptySquares) {
 		long pawnSquares = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.PAWN));
 		
 		long pawnMoves = pawnSquares;
@@ -55,7 +51,7 @@ public class MoveGenerator {
 		while(possiblePawnMovesAdd != 0) {
 			int index = BitOperations.bitScanForward(possiblePawnMovesAdd);
 			
-			addPawnMove(side, index - 8 * facing, index, 0, MoveFlag.NONE);
+			addPawnMove(list, side, index - 8 * facing, index, 0, MoveFlag.NONE);
 		    
 		    possiblePawnMovesAdd ^= BoardConstants.BIT_SET[index];
 		}
@@ -72,7 +68,7 @@ public class MoveGenerator {
 		while(possiblePawnDoubleMoves != 0) {
 			int index = BitOperations.bitScanForward(possiblePawnDoubleMoves);
 			
-			addPawnMove(side, index - 16 * facing, index, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
+			addPawnMove(list, side, index - 16 * facing, index, 0, MoveFlag.DOUBLE_PAWN_ADVANCE);
 		    
 		    possiblePawnDoubleMoves ^= BoardConstants.BIT_SET[index];
 		}
@@ -102,7 +98,7 @@ public class MoveGenerator {
 			int index = BitOperations.bitScanForward(pawnAttacksLeft);
 			
 			if(index % 8 != 0) {
-				addPawnMove(side, index - 8 * facing - 1, index, b.getPieceType(index), MoveFlag.NONE);
+				addPawnMove(list, side, index - 8 * facing - 1, index, b.getPieceType(index), MoveFlag.NONE);
 			}
 			
 		    pawnAttacksLeft ^= BoardConstants.BIT_SET[index];
@@ -111,14 +107,14 @@ public class MoveGenerator {
 			int index = BitOperations.bitScanForward(pawnAttacksRight);
 			
 			if(index % 8 != 7) {
-				addPawnMove(side, index - 8 * facing + 1, index, b.getPieceType(index), MoveFlag.NONE);
+				addPawnMove(list, side, index - 8 * facing + 1, index, b.getPieceType(index), MoveFlag.NONE);
 			}
 		    
 		    pawnAttacksRight ^= BoardConstants.BIT_SET[index];
 		}
 	}
 	
-	private static void addPawnMove(int side, int from, int to, int captured, int flag) {
+	private static void addPawnMove(MoveList list, int side, int from, int to, int captured, int flag) {
 		int promoted = 0;
 		int toY = to / 8;
 		
@@ -129,7 +125,7 @@ public class MoveGenerator {
 		list.addMove(from, to, captured, promoted, flag);
 	}
 	
-	private static void addKnightMoves(Board b, int side, long possibleSquares) {
+	private static void addKnightMoves(Board b, MoveList list, int side, long possibleSquares) {
 		long knightSquares = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.KNIGHT));
 		
 		while(knightSquares != 0) {
@@ -149,7 +145,7 @@ public class MoveGenerator {
 		}
 	}
 	
-	private static void addKingMoves(Board b, int side, long possibleSquares, long emptySquares) {
+	private static void addKingMoves(Board b, MoveList list, int side, long possibleSquares, long emptySquares) {
 		long kingSquares = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.KING));
 		
 		int index = BitOperations.bitScanForward(kingSquares);
@@ -167,24 +163,24 @@ public class MoveGenerator {
 		if(side == PieceCode.WHITE) {
 			
 			if((b.getCastlePerms() & Castling.WHITE_QUEEN_SIDE) == 0) {
-				addCastlingMove(b, side, index, Castling.WHITE_QUEEN_SIDE, emptySquares);
+				addCastlingMove(b, list, side, index, Castling.WHITE_QUEEN_SIDE, emptySquares);
 			}
 			if((b.getCastlePerms() & Castling.WHITE_KING_SIDE) == 0) {
-				addCastlingMove(b, side, index, Castling.WHITE_KING_SIDE, emptySquares);
+				addCastlingMove(b, list, side, index, Castling.WHITE_KING_SIDE, emptySquares);
 			}
 			
 		} else {
 			
 			if((b.getCastlePerms() & Castling.BLACK_QUEEN_SIDE) == 0) {
-				addCastlingMove(b, side, index, Castling.BLACK_QUEEN_SIDE, emptySquares);
+				addCastlingMove(b, list, side, index, Castling.BLACK_QUEEN_SIDE, emptySquares);
 			}
 			if((b.getCastlePerms() & Castling.BLACK_KING_SIDE) == 0) {
-				addCastlingMove(b, side, index, Castling.BLACK_KING_SIDE, emptySquares);
+				addCastlingMove(b, list, side, index, Castling.BLACK_KING_SIDE, emptySquares);
 			}
 		}
 	}
 	
-	private static void addCastlingMove(Board b, int side, int from, int castlingSide, long emptySquares) {
+	private static void addCastlingMove(Board b, MoveList list, int side, int from, int castlingSide, long emptySquares) {
 		int dir = -1;
 		
 		int flag = MoveFlag.CASTLING_QUEEN_SIDE;
@@ -222,7 +218,7 @@ public class MoveGenerator {
 		list.addMove(from, to, 0, 0, flag);
 	}
 	
-	private static void addSliderMoves(Board b, int side, long possibleSquares, long occupiedSquares, int type, long[] moveTable, long[] magicValues, int[] magicIndices, long[][] finalMoveTable) {
+	private static void addSliderMoves(Board b, MoveList list, int side, long possibleSquares, long occupiedSquares, int type, long[] moveTable, long[] magicValues, int[] magicIndices, long[][] finalMoveTable) {
 		long squares = b.getBitBoard(side).andReturn(b.getBitBoard(type).orReturn(b.getBitBoard(PieceCode.QUEEN)));
 		
 		while(squares != 0) {
@@ -252,11 +248,7 @@ public class MoveGenerator {
 		return finalMoveTable[square][key];
 	}
 	
-	public static MoveList getList() {
-		return list;
-	}
-	
-	public static ArrayList<Move> getMovesForIndex(int index, Board b, boolean legalOnly) {
+	public static ArrayList<Move> getMovesForIndex(int index, Board b, MoveList list, boolean legalOnly) {
 		ArrayList<Move> moves = new ArrayList<Move>();
 		
 		for(int i=0; i<list.getCount(); i++) {

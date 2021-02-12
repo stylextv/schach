@@ -17,6 +17,8 @@ public class Board {
 	private int castlePerms;
 	
     private int enPassant;
+    
+    private long positionKey;
 	
 	private UndoStructure[] history = new UndoStructure[BoardConstants.MAX_GAME_MOVES];
 	
@@ -43,12 +45,16 @@ public class Board {
 		
 		enPassant = BoardSquare.NONE;
 		
+		positionKey = 0;
+		
 		for(int i=0; i<bitBoards.length; i++) {
 			bitBoards[i].clear();
 		}
 		
 		for(int i=0; i<pieces.length; i++) {
 			pieces[i] = -1;
+			
+			positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + i);
 		}
 		
 		setPiece(0, PieceCode.BLACK, PieceCode.ROOK);
@@ -93,6 +99,9 @@ public class Board {
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
 		
+		positionKey ^= PositionKey.getRandomNumber(pieces[index] * 64 + index);
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + index);
+		
 		pieces[index] = -1;
 	}
 	
@@ -102,7 +111,12 @@ public class Board {
 		bitBoards[side].xor(key);
 		bitBoards[type].xor(key);
 		
-		pieces[index] = PieceCode.getSpriteCode(side, type);
+		int code = PieceCode.getSpriteCode(side, type);
+		
+		pieces[index] = code;
+		
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.NOTHING_OFFSET + index);
+		positionKey ^= PositionKey.getRandomNumber(code * 64 + index);
 	}
 	
 	public void makeMove(Move m) {
@@ -137,16 +151,21 @@ public class Board {
 		if(originalPiece == PieceCode.PAWN || m.getCaptured() != 0) fiftyMoveCounter = 0;
 		else fiftyMoveCounter++;
 		
+		if(enPassant != BoardSquare.NONE) {
+			positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
+		}
+		
 		if(m.getFlag() == MoveFlag.DOUBLE_PAWN_ADVANCE) {
 			enPassant = (m.getFrom() + m.getTo()) / 2;
+			
+			positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
 		} else {
 			enPassant = BoardSquare.NONE;
 		}
 		
 		if(m.getFlag() == MoveFlag.CASTLING_QUEEN_SIDE || m.getFlag() == MoveFlag.CASTLING_KING_SIDE) {
 			
-			if(side == PieceCode.WHITE) castlePerms |= Castling.WHITE;
-			else castlePerms |= Castling.BLACK;
+			removeCastlePerms(side);
 			
 			int y = m.getFrom() / 8;
 			
@@ -167,8 +186,7 @@ public class Board {
 		} else if(castlePerms != Castling.BOTH) {
 			
 			if(m.getFrom() == MoveGenerator.KING_START_POSITION[side]) {
-				if(side == PieceCode.WHITE) castlePerms |= Castling.WHITE;
-				else castlePerms |= Castling.BLACK;
+				removeCastlePerms(side);
 			}
 			
 			updateCastlePerms(PieceCode.WHITE, m.getFrom(), m.getTo());
@@ -176,12 +194,14 @@ public class Board {
 		}
 		
 		side = opponentSide;
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.SIDE_OFFSET);
 	}
 	
 	public void undoMove(Move m) {
 		int opponentSide = side;
 		
 		side = (side + 1) % 2;
+		positionKey ^= PositionKey.getRandomNumber(PositionKey.SIDE_OFFSET);
 		
 		int originalPiece = getPieceType(m.getTo());
 		int placedPiece = originalPiece;
@@ -199,8 +219,18 @@ public class Board {
 		UndoStructure u = history[historyPly];
 		
 		fiftyMoveCounter = u.getFiftyMoveCounter();
+		
+		long undoneCastlePerms = castlePerms;
 		castlePerms = u.getCastlePerms();
+		
+		if((castlePerms & Castling.WHITE_KING_SIDE) != (undoneCastlePerms & Castling.WHITE_KING_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
+		if((castlePerms & Castling.WHITE_QUEEN_SIDE) != (undoneCastlePerms & Castling.WHITE_QUEEN_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
+		if((castlePerms & Castling.BLACK_KING_SIDE) != (undoneCastlePerms & Castling.BLACK_KING_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
+		if((castlePerms & Castling.BLACK_QUEEN_SIDE) != (undoneCastlePerms & Castling.BLACK_QUEEN_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
+		
+		if(enPassant != BoardSquare.NONE) positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
 		enPassant = u.getEnPassant();
+		if(enPassant != BoardSquare.NONE) positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
 		
 		if(m.getFlag() == MoveFlag.EN_PASSANT) {
 			int target = enPassant;
@@ -309,6 +339,20 @@ public class Board {
 		return (moves & squares) != 0;
 	}
 	
+	private void removeCastlePerms(int side) {
+		if(side == PieceCode.WHITE) {
+			if((castlePerms & Castling.WHITE_KING_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
+			if((castlePerms & Castling.WHITE_QUEEN_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
+			
+			castlePerms |= Castling.WHITE;
+		} else {
+			if((castlePerms & Castling.BLACK_KING_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
+			if((castlePerms & Castling.BLACK_QUEEN_SIDE) == 0) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
+			
+			castlePerms |= Castling.BLACK;
+		}
+	}
+	
 	private void updateCastlePerms(int side, int from, int to) {
 		updateCastlePerms(side, from, to, 0);
 		updateCastlePerms(side, from, to, 1);
@@ -321,16 +365,31 @@ public class Board {
 		
 		if(from == square || to == square) {
 			int mask;
+			long key;
 			
 			if(side == PieceCode.WHITE) {
-				if(rookIndex == 0) mask = Castling.WHITE_QUEEN_SIDE;
-				else mask = Castling.WHITE_KING_SIDE;
+				if(rookIndex == 0) {
+					mask = Castling.WHITE_QUEEN_SIDE;
+					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
+				} else {
+					mask = Castling.WHITE_KING_SIDE;
+					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
+				}
 			} else {
-				if(rookIndex == 0) mask = Castling.BLACK_QUEEN_SIDE;
-				else mask = Castling.BLACK_KING_SIDE;
+				if(rookIndex == 0) {
+					mask = Castling.BLACK_QUEEN_SIDE;
+					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
+				} else {
+					mask = Castling.BLACK_KING_SIDE;
+					key = PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
+				}
 			}
 			
-			castlePerms |= mask;
+			if((castlePerms & mask) == 0) {
+				positionKey ^= key;
+				
+				castlePerms |= mask;
+			}
 		}
 	}
 	
@@ -347,9 +406,9 @@ public class Board {
 	}
 	
 	public int findWinner() {
-		MoveGenerator.generateAllMoves(this);
+		MoveList list = new MoveList();
 		
-		MoveList list = MoveGenerator.getList();
+		MoveGenerator.generateAllMoves(this, list);
 		
 		boolean hasLegalMoves = false;
 		
@@ -368,7 +427,7 @@ public class Board {
 	
 	public int findWinner(boolean hasLegalMoves) {
 		if(hasLegalMoves) {
-			if(fiftyMoveCounter == 50) return Winner.DRAW;
+			if(fiftyMoveCounter == 100) return Winner.DRAW;
 			
 			return Winner.NONE;
 		}
@@ -399,6 +458,10 @@ public class Board {
 	
 	public int getEnPassant() {
 		return enPassant;
+	}
+	
+	public long getPositionKey() {
+		return positionKey;
 	}
 	
 	public BitBoard getBitBoard(int code) {

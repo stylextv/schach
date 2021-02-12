@@ -4,7 +4,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 
-import de.chess.ai.MinimaxAI;
 import de.chess.game.PieceCode;
 import de.chess.game.Winner;
 import de.chess.io.Window;
@@ -42,7 +41,7 @@ public class UIManager {
 			mouseXMoved = p.x - mouseX;
 			mouseX = p.x;
 			mouseY = p.y;
-		}
+		} else mouseXMoved = 0;
 		
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -67,7 +66,8 @@ public class UIManager {
 			
 		} else if(PopupUI.isHoveringButton(p.x, p.y, width, height)) {
 			
-			MinimaxAI.clearCache();
+			BoardUI.clearLastAIMove();
+			
 			Main.getBoard().reset();
 			
 			BoardUI.setWinner(Winner.NONE);

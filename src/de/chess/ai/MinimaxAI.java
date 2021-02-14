@@ -4,6 +4,8 @@ import de.chess.game.Board;
 import de.chess.game.Move;
 import de.chess.game.MoveGenerator;
 import de.chess.game.MoveList;
+import de.chess.game.TranspositionEntry;
+import de.chess.game.TranspositionTable;
 import de.chess.game.Winner;
 import de.chess.util.MathUtil;
 

@@ -29,8 +29,7 @@ public class TranspositionTable {
 	}
 	
 	private static boolean shouldReplace(TranspositionEntry e, TranspositionEntry old) {
-		if(e.getAge() > old.getAge() || e.getDepth() < old.getDepth()) return true;
-		return false;
+		return e.getAge() > old.getAge() || e.getDepth() < old.getDepth();
 	}
 	
 }

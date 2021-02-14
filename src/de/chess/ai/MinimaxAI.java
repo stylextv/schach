@@ -45,7 +45,7 @@ public class MinimaxAI {
 		System.out.println("nodes_per_second: "+MathUtil.DECIMAL_FORMAT.format(visitedNodes / time));
 		System.out.println("visited_normal_nodes: "+MathUtil.DECIMAL_FORMAT.format(visitedNormalNodes));
 		System.out.println("visited_quiesce_nodes: "+MathUtil.DECIMAL_FORMAT.format(visitedQuiesceNodes));
-		System.out.println("transpositionUses: "+MathUtil.DECIMAL_FORMAT.format(transpositionUses));
+		System.out.println("transposition_uses: "+MathUtil.DECIMAL_FORMAT.format(transpositionUses));
 		
 		return responseMove;
 	}

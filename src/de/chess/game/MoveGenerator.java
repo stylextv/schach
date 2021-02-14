@@ -29,7 +29,7 @@ public class MoveGenerator {
 		long occupiedSquares = b.getBitBoard(side).orReturn(b.getBitBoard(opponentSide));
 		long emptySquares = BitOperations.inverse(occupiedSquares);
 		
-		addPawnMoves(b, list, side, opponentSide, facing, possibleSquares, emptySquares);
+		addPawnMoves(b, list, side, opponentSide, facing, emptySquares);
 		addKnightMoves(b, list, side, possibleSquares);
 		addKingMoves(b, list, side, possibleSquares, emptySquares);
 		
@@ -37,7 +37,7 @@ public class MoveGenerator {
 		addSliderMoves(b, list, side, possibleSquares, occupiedSquares, PieceCode.ROOK, LookupTable.RELEVANT_ROOK_MOVES, LookupTable.ROOK_MAGIC_VALUES, LookupTable.ROOK_MAGIC_INDEX_BITS, LookupTable.ROOK_MOVES);
 	}
 	
-	private static void addPawnMoves(Board b, MoveList list, int side, int opponentSide, int facing, long possibleSquares, long emptySquares) {
+	private static void addPawnMoves(Board b, MoveList list, int side, int opponentSide, int facing, long emptySquares) {
 		long pawnSquares = b.getBitBoard(side).andReturn(b.getBitBoard(PieceCode.PAWN));
 		
 		long pawnMoves = pawnSquares;

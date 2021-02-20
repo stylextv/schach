@@ -14,7 +14,7 @@ public class MinimaxAI {
 	private static final int INFINITY = 100000;
 	
 	private static final int MAX_DEPTH = 5;
-	private static final int MAX_QUIESCE_DEPTH = 15;
+	private static final int MAX_QUIESCE_DEPTH = 25;
 	
 	private static Move responseMove;
 	
@@ -162,15 +162,19 @@ public class MinimaxAI {
 		
 		if(b.getFiftyMoveCounter() == 100 || b.hasThreefoldRepetition()) return 0;
 		
-		int evalScore = Evaluator.eval(b);
+		boolean inCheck = b.isSideInCheck();
 		
-	    if(evalScore >= beta) return beta;
-	    
-	    if(depth == MAX_QUIESCE_DEPTH) {
-			return evalScore;
+		if(!inCheck) {
+			int evalScore = Evaluator.eval(b);
+			
+		    if(evalScore >= beta) return beta;
+		    
+		    if(depth == MAX_QUIESCE_DEPTH) {
+				return evalScore;
+			}
+		    
+		    if(evalScore > alpha) alpha = evalScore;
 		}
-	    
-	    if(evalScore > alpha) alpha = evalScore;
 		
 		MoveList list = new MoveList();
 		
@@ -186,13 +190,13 @@ public class MinimaxAI {
 			b.makeMove(m);
 			
 			int score = 0;
-			boolean isCapture = false;
+			boolean hasDoneMove = false;
 			
 			if(!b.isOpponentInCheck()) {
 				hasLegalMove = true;
 				
-				if(m.getCaptured() != 0) {
-					isCapture = true;
+				if(inCheck || m.getCaptured() != 0) {
+					hasDoneMove = true;
 					
 					score = -quiesce(b, -beta, -alpha, depth+1);
 					
@@ -204,7 +208,7 @@ public class MinimaxAI {
 			
 			b.undoMove(m);
 			
-			if(isCapture && score >= beta) {
+			if(hasDoneMove && score >= beta) {
 				return beta;
 			}
 		}

@@ -31,6 +31,8 @@ public class BoardUI {
 	private static int handRenderY;
 	private static double handRotation;
 	
+	private static Move[] pawnPromotions; 
+	
 	private static int winner = Winner.NONE;
 	
 	private static Point mouseClick;
@@ -55,6 +57,24 @@ public class BoardUI {
 		}
 		
 		if(mouseClick != null) {
+			
+			if(pawnPromotions != null) {
+				int i = PromotionUI.isHoveringBox(mouseClick.x, mouseClick.y, UIManager.getWidth(), UIManager.getHeight());
+				
+				if(i != -1) {
+					clearLastAIMove();
+					
+					board.makeMove(pawnPromotions[i]);
+					
+					checkForWinner(board);
+				}
+				
+				pawnPromotions = null;
+				
+				mouseClick = null;
+				
+				return;
+			}
 			
 			int mx = mouseClick.x - UIManager.getWidth()/2 + 256;
 			int my = mouseClick.y - UIManager.getHeight()/2 + 256;
@@ -84,23 +104,33 @@ public class BoardUI {
 							}
 						}
 					} else {
-						Move m = null;
+						Move[] moves = new Move[4];
+						int l = 0;
 						
 						for(Move check : handMoves) {
 							if(index == check.getTo()) {
-								m = check;
-								break;
+								moves[l] = check;
+								
+								l++;
 							}
 						}
 						
 						clearHand();
 						
-						if(m != null) {
-							clearLastAIMove();
-							
-							board.makeMove(m);
-							
-							checkForWinner(board);
+						if(l != 0) {
+							if(l == 1) {
+								clearLastAIMove();
+								
+								board.makeMove(moves[0]);
+								
+								checkForWinner(board);
+							} else {
+								PromotionUI.setSide(board.getSide());
+								
+								PromotionUI.setOffset(moves[0].getTo() % 8);
+								
+								pawnPromotions = moves;
+							}
 						}
 					}
 					
@@ -187,8 +217,16 @@ public class BoardUI {
 		int pos2X = -1;
 		int pos2Y = -1;
 		
-		if(lastAIMove != null && lastAIMoveState != 1) {
-			int index = y*8 + x;
+		int index = y*8 + x;
+		
+		if(pawnPromotions != null) {
+			Move m = pawnPromotions[0];
+			
+			if(index == m.getFrom()) {
+				pos1X = m.getTo() % 8;
+				pos1Y = m.getTo() / 8;
+			}
+		} else if(lastAIMove != null && lastAIMoveState != 1) {
 			
 			if(lastAIMove.getTo() == index) {
 				
@@ -270,6 +308,10 @@ public class BoardUI {
 	
 	public static ArrayList<Move> getHandMoves() {
 		return handMoves;
+	}
+	
+	public static Move[] getPawnPromotions() {
+		return pawnPromotions;
 	}
 	
 }

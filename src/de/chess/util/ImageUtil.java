@@ -13,6 +13,7 @@ public class ImageUtil {
 	public static BufferedImage BACKGROUND;
 	
 	public static BufferedImage POPUP_SHADOW;
+	public static BufferedImage PROMOTION_SHADOW;
 	
 	public static BufferedImage BLACK_BISHOP;
 	public static BufferedImage BLACK_KING;
@@ -40,6 +41,7 @@ public class ImageUtil {
 			BACKGROUND = loadImage("background.png");
 			
 			POPUP_SHADOW = loadImage("popup_shadow.png");
+			PROMOTION_SHADOW = loadImage("promotion_shadow.png");
 			
 			BLACK_BISHOP = loadImage("pieces/black_bishop.png");
 			BLACK_KING = loadImage("pieces/black_king.png");

@@ -53,6 +53,8 @@ public class UIManager {
 		
 		BoardUI.drawHand(graphics);
 		
+		PromotionUI.updateDropDown(graphics);
+		
 		PopupUI.updatePopup(graphics);
 	}
 	

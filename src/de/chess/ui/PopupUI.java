@@ -71,10 +71,10 @@ public class PopupUI {
 		for(int i=0; i<data.getSize(); i++) {
 			int rgb = data.getElem(i);
 			
-			int a = (rgb >> 24) & 0xFF;
-			a = (int) (alpha * a);
+			int a = (rgb >>> 24) & 0xFF;
+			a = Math.round(alpha * a);
 			
-			rgb = rgb & 0x00FFFFFF + (a << 24);
+			rgb = (rgb & 0x00FFFFFF) + (a << 24);
 			
 			data.setElem(i, rgb);
 		}
@@ -111,7 +111,11 @@ public class PopupUI {
 		
 		trans.translate(x, y);
 		
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
 		graphics.drawImage(image, trans, null);
+		
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 	}
 	
 	public static boolean isHoveringButton(int mx, int my, int width, int height) {

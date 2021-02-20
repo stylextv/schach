@@ -25,7 +25,7 @@
 </p>
 
 ## What is it?
-This is a simple interactive program where you can play against my homemade chess AI.
+This is a simple and interactive program in which you can play against my homemade chess AI.
 > A downloadable executable can be found [here](https://github.com/StylexTV/Schach/raw/main/executables/Schach.jar).
 
 ## Project Layout

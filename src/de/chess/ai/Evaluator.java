@@ -78,6 +78,17 @@ public class Evaluator {
 			-30, -40, -40, -50, -50, -40, -40, -30
 	};
 	
+	private static final int[] KING_TABLE_ENDGAME = new int[]{
+			-50, -30,-30, -30, -30, -30, -30, -50,
+			-30, -30,  0,   0,   0,   0, -30, -30,
+			-30, -10, 20,  30,  30,  20, -10, -30,
+			-30, -10, 30,  40,  40,  30, -10, -30,
+			-30, -10, 30,  40,  40,  30, -10, -30,
+			-30, -10, 20,  30,  30,  20, -10, -30,
+			-30, -20,-10,   0,   0, -10, -20, -30,
+			-50, -40,-30, -20, -20, -30, -40, -50
+	};
+	
 	private static final int[][] TABLES = new int[][] {
 			null,
 			null,
@@ -86,7 +97,8 @@ public class Evaluator {
 			BISHOP_TABLE,
 			ROOK_TABLE,
 			QUEEN_TABLE,
-			KING_TABLE
+			KING_TABLE,
+			KING_TABLE_ENDGAME
 	};
 	
 	private static final int[] VALUES = new int[] {
@@ -126,18 +138,21 @@ public class Evaluator {
 	}
 	
 	public static int eval(Board b) {
+		b.countPieces();
+		
+		boolean isEndgame = b.isEndgame();
+		
 		int score = 0;
 		
-		int[] pieces = b.getPieces();
-		
-		for(int i=0; i<64; i++) {
-			int code = pieces[i];
+		for(int i=0; i<12; i++) {
+			int color = PieceCode.getColorFromSpriteCode(i);
+			int type = PieceCode.getTypeFromSpriteCode(i);
 			
-			if(code != -1) {
-				int color = PieceCode.getColorFromSpriteCode(code);
-				int type = PieceCode.getTypeFromSpriteCode(code);
+			for(int j=0; j<b.getPieceAmount(i); j++) {
 				
-				int index = i;
+				if(isEndgame && type == PieceCode.KING) type++;
+				
+				int index = b.getPieceIndex(i, j);
 				
 				if(color == PieceCode.WHITE) {
 					index = MIRROR_TABLE[index];

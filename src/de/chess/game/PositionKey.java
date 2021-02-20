@@ -1,6 +1,6 @@
 package de.chess.game;
 
-import de.chess.util.MathUtil;
+import java.util.Random;
 
 public class PositionKey {
 	
@@ -12,8 +12,10 @@ public class PositionKey {
 	public static final int CASTLING_OFFSET = 13 * 64 + 1 + 8;
 	
 	static {
+		Random random = new Random(2361912);
+		
 		for(int i=0; i<RANDOM_NUMBERS.length; i++) {
-			RANDOM_NUMBERS[i] = MathUtil.RANDOM.nextLong();
+			RANDOM_NUMBERS[i] = random.nextLong();
 		}
 	}
 	

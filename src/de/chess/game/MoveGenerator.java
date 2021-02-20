@@ -115,14 +115,24 @@ public class MoveGenerator {
 	}
 	
 	private static void addPawnMove(MoveList list, int side, int from, int to, int captured, int flag) {
-		int promoted = 0;
+		boolean promoted = false;
 		int toY = to / 8;
 		
 		if((side == PieceCode.WHITE && toY == 0) || (side == PieceCode.BLACK && toY == 7)) {
-			promoted = PieceCode.QUEEN;
+			promoted = true;
 		}
 		
-		list.addMove(from, to, captured, promoted, flag);
+		if(promoted) {
+			
+			list.addMove(from, to, captured, PieceCode.QUEEN, flag);
+			list.addMove(from, to, captured, PieceCode.KNIGHT, flag);
+			list.addMove(from, to, captured, PieceCode.ROOK, flag);
+			list.addMove(from, to, captured, PieceCode.BISHOP, flag);
+			
+		} else {
+			
+			list.addMove(from, to, captured, 0, flag);
+		}
 	}
 	
 	private static void addKnightMoves(Board b, MoveList list, int side, long possibleSquares) {

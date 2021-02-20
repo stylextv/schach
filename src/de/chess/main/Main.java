@@ -1,5 +1,6 @@
 package de.chess.main;
 
+import de.chess.ai.OpeningBook;
 import de.chess.game.Board;
 import de.chess.game.LookupTable;
 import de.chess.ui.UIManager;
@@ -27,6 +28,7 @@ public class Main {
 			FontUtil.load();
 			
 			LookupTable.initTables();
+			OpeningBook.load();
 			
 			startGameLoop();
 			

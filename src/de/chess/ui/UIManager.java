@@ -44,13 +44,12 @@ public class UIManager {
 		} else mouseXMoved = 0;
 		
 		graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 		
 		graphics.drawImage(ImageUtil.BACKGROUND, (width - ImageUtil.BACKGROUND.getWidth()) / 2, (height - ImageUtil.BACKGROUND.getHeight()) / 2, null);
 		
 		BoardUI.drawBoard(graphics, Main.getBoard());
 		
-		MoveIndicatorUI.drawMoves(graphics);
+		MoveIndicatorUI.drawMoves(graphics, Main.getBoard());
 		
 		BoardUI.drawHand(graphics);
 		

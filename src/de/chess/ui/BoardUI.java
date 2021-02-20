@@ -2,6 +2,7 @@ package de.chess.ui;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -172,7 +173,11 @@ public class BoardUI {
 		
 		trans.rotate(Math.toRadians(handRotation), sprite.getWidth()/2, 10);
 		
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		
 		graphics.drawImage(sprite, trans, null);
+		
+		graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 	}
 	
 	private static void drawPiece(Graphics2D graphics, int p, int x, int y, int offX, int offY) {
@@ -223,7 +228,11 @@ public class BoardUI {
 			AffineTransform trans = new AffineTransform();
 			trans.translate(pos1X+(pos2X-pos1X)*d, pos1Y+(pos2Y-pos1Y)*d);
 			
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+			
 			graphics.drawImage(sprite, trans, null);
+			
+			graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		}
 	}
 	

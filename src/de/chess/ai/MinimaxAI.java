@@ -14,7 +14,7 @@ public class MinimaxAI {
 	private static final int INFINITY = 100000;
 	
 	private static final int MAX_DEPTH = 5;
-	private static final int MAX_QUIESCE_DEPTH = 11;
+	private static final int MAX_QUIESCE_DEPTH = 15;
 	
 	private static Move responseMove;
 	
@@ -111,7 +111,7 @@ public class MinimaxAI {
 			return quiesce(b, alpha, beta, depth);
 		}
 		
-		if(b.getFiftyMoveCounter() == 100) return 0;
+		if(b.getFiftyMoveCounter() == 100 || b.hasThreefoldRepetition()) return 0;
 		
 		MoveList list = new MoveList();
 		
@@ -160,7 +160,7 @@ public class MinimaxAI {
 		visitedQuiesceNodes++;
 		if(depth > maxDepth) maxDepth = depth;
 		
-		if(b.getFiftyMoveCounter() == 100) return 0;
+		if(b.getFiftyMoveCounter() == 100 || b.hasThreefoldRepetition()) return 0;
 		
 		int evalScore = Evaluator.eval(b);
 		

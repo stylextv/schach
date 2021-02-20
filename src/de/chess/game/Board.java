@@ -1,12 +1,18 @@
 package de.chess.game;
 
 import de.chess.ai.MinimaxAI;
+import de.chess.ai.OpeningBook;
+import de.chess.ai.OpeningPosition;
 
 public class Board {
 	
 	private BitBoard[] bitBoards = new BitBoard[PieceCode.LAST + 1];
 	
 	private int[] pieces = new int[BoardConstants.BOARD_SIZE_SQ];
+	
+	private int[][] pieceIndices = new int[12][11];
+	
+	private int[] pieceCounters = new int[12];
 	
 	private int side;
 	
@@ -120,6 +126,10 @@ public class Board {
 	}
 	
 	public void makeMove(Move m) {
+		UndoStructure u = history[historyPly];
+		
+		u.setPositionKey(positionKey);
+		
 		int opponentSide = (side + 1) % 2;
 		
 		int originalPiece = getPieceType(m.getFrom());
@@ -139,8 +149,6 @@ public class Board {
 			
 			clearSquare(target, opponentSide, PieceCode.PAWN);
 		}
-		
-		UndoStructure u = history[historyPly];
 		
 		u.setFiftyMoveCounter(fiftyMoveCounter);
 		u.setCastlePerms(castlePerms);
@@ -201,7 +209,6 @@ public class Board {
 		int opponentSide = side;
 		
 		side = (side + 1) % 2;
-		positionKey ^= PositionKey.getRandomNumber(PositionKey.SIDE_OFFSET);
 		
 		int originalPiece = getPieceType(m.getTo());
 		int placedPiece = originalPiece;
@@ -220,17 +227,9 @@ public class Board {
 		
 		fiftyMoveCounter = u.getFiftyMoveCounter();
 		
-		long undoneCastlePerms = castlePerms;
 		castlePerms = u.getCastlePerms();
 		
-		if((castlePerms & Castling.WHITE_KING_SIDE) != (undoneCastlePerms & Castling.WHITE_KING_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET);
-		if((castlePerms & Castling.WHITE_QUEEN_SIDE) != (undoneCastlePerms & Castling.WHITE_QUEEN_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 1);
-		if((castlePerms & Castling.BLACK_KING_SIDE) != (undoneCastlePerms & Castling.BLACK_KING_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 2);
-		if((castlePerms & Castling.BLACK_QUEEN_SIDE) != (undoneCastlePerms & Castling.BLACK_QUEEN_SIDE)) positionKey ^= PositionKey.getRandomNumber(PositionKey.CASTLING_OFFSET + 3);
-		
-		if(enPassant != BoardSquare.NONE) positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
 		enPassant = u.getEnPassant();
-		if(enPassant != BoardSquare.NONE) positionKey ^= PositionKey.getRandomNumber(PositionKey.EN_PASSANT_OFFSET + enPassant % 8);
 		
 		if(m.getFlag() == MoveFlag.EN_PASSANT) {
 			int target = enPassant;
@@ -259,9 +258,40 @@ public class Board {
 			setPiece(rookFrom, side, PieceCode.ROOK);
 			clearSquare(rookTo, side, PieceCode.ROOK);
 		}
+		
+		positionKey = u.getPositionKey();
 	}
 	
 	public Move makeAIMove() {
+		OpeningPosition p = OpeningBook.getOpeningPosition(positionKey);
+		
+		if(p != null) {
+			
+			int hash = p.getRandomMove();
+			
+			Move m = null;
+			
+			MoveList list = new MoveList();
+			
+			MoveGenerator.generateAllMoves(this, list);
+			
+			for(int i=0; i<list.getCount(); i++) {
+				Move move = list.getMove(i);
+				
+				if(move.getHash() == hash) {
+					m = move;
+					break;
+				}
+			}
+			
+			System.out.println("---");
+			System.out.println("played move from book: "+m);
+			
+			makeMove(m);
+			
+			return m;
+		}
+		
 		Move m = MinimaxAI.findNextMove(this);
 		
 		makeMove(m);
@@ -405,6 +435,66 @@ public class Board {
 		return legal;
 	}
 	
+	public boolean hasThreefoldRepetition() {
+		int start = historyPly - 2;
+		
+		int count = 0;
+		
+		for(int i = start; i >= 0; i -= 2) {
+			UndoStructure previous = history[i];
+			
+			if(previous.getPositionKey() == positionKey) {
+				count++;
+				
+				if(count == 2) return true;
+			} else if(previous.getCastlePerms() != castlePerms || previous.getFiftyMoveCounter() >= fiftyMoveCounter) {
+				break;
+			}
+		}
+		
+		return false;
+	}
+	
+	public void countPieces() {
+		for(int i=0; i<pieceCounters.length; i++) {
+			pieceCounters[i] = 0;
+		}
+		
+		for(int i=0; i<64; i++) {
+			int code = pieces[i];
+			
+			if(code != -1) {
+				int l = pieceCounters[code];
+				
+				pieceIndices[code][l] = i;
+				
+				pieceCounters[code] = l + 1;
+			}
+		}
+	}
+	
+	public int getPieceAmount(int code) {
+		return pieceCounters[code];
+	}
+	
+	public int getPieceIndex(int code, int i) {
+		return pieceIndices[code][i];
+	}
+	
+	public boolean isEndgame() {
+		int count = 0;
+		
+		for(int i=1; i<12; i++) {
+			int type = PieceCode.getTypeFromSpriteCode(i);
+			
+			if(type != PieceCode.PAWN && type != PieceCode.KING) {
+				count += pieceCounters[i];
+			}
+		}
+		
+		return count <= 4;
+	}
+	
 	public int findWinner() {
 		MoveList list = new MoveList();
 		
@@ -427,7 +517,7 @@ public class Board {
 	
 	public int findWinner(boolean hasLegalMoves) {
 		if(hasLegalMoves) {
-			if(fiftyMoveCounter == 100) return Winner.DRAW;
+			if(fiftyMoveCounter == 100 || hasThreefoldRepetition()) return Winner.DRAW;
 			
 			return Winner.NONE;
 		}

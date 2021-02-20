@@ -21,6 +21,10 @@ public class Move {
     	
     	this.flag = flag;
 	}
+	
+	public int getHash() {
+		return from | (to << 7) | (promoted << 14);
+	}
     
 	public int getFrom() {
 		return from;

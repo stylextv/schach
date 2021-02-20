@@ -2,17 +2,27 @@ package de.chess.game;
 
 public class UndoStructure {
 	
+	private long positionKey;
     private int enPassant;
     private int castlePerms;
     private int fiftyMoveCounter;
     
     public UndoStructure() {}
     
-    public UndoStructure(int enPassant, int castlePerms, int fiftyMoveCounter) {
+    public UndoStructure(long positionKey, int enPassant, int castlePerms, int fiftyMoveCounter) {
+    	this.positionKey = positionKey;
         this.enPassant = enPassant;
         this.castlePerms = castlePerms;
         this.fiftyMoveCounter = fiftyMoveCounter;
     }
+    
+	public long getPositionKey() {
+		return positionKey;
+	}
+	
+	public void setPositionKey(long positionKey) {
+		this.positionKey = positionKey;
+	}
     
 	public int getEnPassant() {
 		return enPassant;

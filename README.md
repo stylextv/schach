@@ -36,8 +36,9 @@ Here you can see the current structure of the project.
 ├─ 📂 screenshots/    # ✨ Showcase Screenshots
 ├─ 📂 src/            # 🌟 Source Files
 │  ├─ 📂 assets/          # ✒️ Program Assets
-│  │  └─ 📂 fonts/        # 📦 Fonts
-│  │  └─ 📂 textures/     # 📦 Textures
+│  │  └─ 📂 fonts/           # 📦 Fonts
+│  │  └─ 📂 textures/        # 📦 Textures
+│  │  └─ 📃 opening_book.txt # 📚 Opening Book
 │  ├─ 📂 de/chess/        # ✉️ Source Code
 └─ 📃 readme.md       # 📖 Read Me!
 ```

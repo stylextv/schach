@@ -44,7 +44,7 @@ public class OpeningPosition {
 		
 		float previousProbability = 0;
 		
-		for (int i=0; i<weights.length; i++) {
+		for(int i=0; i<weights.length; i++) {
 			weights[i] = previousProbability + weights[i] / sum;
 			
 			previousProbability = weights[i];

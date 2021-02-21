@@ -83,10 +83,12 @@ public class MoveGenerator {
 		if(enPassant != BoardSquare.NONE) {
 			long moveTo = BoardConstants.BIT_SET[enPassant];
 			
-			if((pawnAttacksLeft & moveTo) != 0) {
+			int enPassantX = enPassant % 8;
+			
+			if(enPassantX != 0 && (pawnAttacksLeft & moveTo) != 0) {
 				list.addMove(enPassant - 8 * facing - 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
 			}
-			if((pawnAttacksRight & moveTo) != 0) {
+			if(enPassantX != 7 && (pawnAttacksRight & moveTo) != 0) {
 				list.addMove(enPassant - 8 * facing + 1, enPassant, 0, 0, MoveFlag.EN_PASSANT);
 			}
 		}

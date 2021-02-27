@@ -29,7 +29,7 @@ This is a simple and interactive program in which you can play against my homema
 > A downloadable executable can be found [here](https://github.com/StylexTV/Schach/raw/main/executables/Schach.jar).
 
 ## Progress
-As I work on this project, I will record the progress I have made.
+As I work on this project, I will make sure to record the progress I have made.
 
 Date | Version | Elo
 --- | --- | ---

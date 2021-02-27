@@ -28,6 +28,15 @@
 This is a simple and interactive program in which you can play against my homemade chess AI.
 > A downloadable executable can be found [here](https://github.com/StylexTV/Schach/raw/main/executables/Schach.jar).
 
+## Progress
+As I work on this project, I will record the progress I have made.
+
+Date | Version | Elo
+--- | --- | ---
+27/02/21 | alpha 1.1.0 | ~1900
+19/02/21 | pre-release 1.0.1 | ~1600
+07/02/21 | pre-release 1.0.0 | ~1400
+
 ## Project Layout
 Here you can see the current structure of the project.
 
